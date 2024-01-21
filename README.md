@@ -1,19 +1,13 @@
-**repoform** is an orchestration framework designed to streamline the management of multi-repository environments within GitOps workflows. By automating complex processes and integrating actions across numerous repositories, repoform ensures a seamless and error-free deployment experience. Currently, repoform is optimized for environments using GitLab, as it leverages the GitLab API for repository operations. Other 
+**repoform** is a tool designed to streamline the management of multi-repository environments within GitOps workflows. By automating complex processes and integrating actions across numerous repositories, repoform ensures a seamless and error-free deployment experience.
+Contrasting with conventional methods dependent on runtime tools like Helm or Kustomize for templating and abstraction, repoform focuses on preparing and finalizing configurations prior to deployment. This pre-deployment strategy presents multiple benefits:
 
-## Key Features
+- **Predictability**: Ensures deployments are transparent and predictable, with configurations resolved before reaching the cluster.
+- **Simplified Workflow**: Reduces complexity by allowing direct manipulation of configurations, streamlining the deployment process.
+- **Version Control and Auditability**: Integrates seamlessly with version control for better tracking, auditability, and easier rollbacks.
+- **Reduced Runtime Dependencies**: Minimizes the need for runtime templating and abstraction, simplifying cluster operations.
+- **Enhanced Security**: Facilitates early compliance checks and security reviews before deployment.
 
-- **Multi-Repo Management**: Synchronize and manage changes across multiple repositories with ease.
-- **GitOps Principles Alignment**: Adheres to GitOps practices, providing transparent, auditable, and declarative configurations.
-- **Flexibility & Extensibility**: Tailors to diverse IT operations, from straightforward deployments to intricate multi-cluster configurations.
-- **Automation & Efficiency**: Minimizes manual tasks with automated processes, freeing teams to focus on innovation.
-- **Integrated Validation & Reconciliation**: Guarantees configuration consistency and correctness across all repositories.
-
-## Ideal Use Cases
-
-- Teams implementing or enhancing GitOps practices.
-- Complex environments with multi-repository structures.
-- Organizations aiming to automate and optimize IT operations.
-- DevOps teams seeking higher efficiency and reduced errors in deployment processes.
+Optimized for GitLab environments, repoform leverages the GitLab API, ensuring a smooth and error-free experience in GitOps practices.
 
 ## Quick Start
 
@@ -65,6 +59,21 @@ def modify_nginx_values(data, file_content: dict):
     file_content["replicaCount"] = data["nginx_replicas"]
 
     return file_content
+```
+
+### Running as CLI tool
+
+```cli
+$ poetry run repoform --help
+Usage: repoform [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  apply  Apply changes.
+  init   Show registered methods and registered data.
+  plan   Plan changes (dry-run).
 ```
 
 ### Running in GitLab CI/CD Pipeline
