@@ -1,10 +1,10 @@
 **repoform** is a tool designed to streamline the management of multi-repository environments within GitOps workflows. By automating complex processes and integrating actions across numerous repositories, repoform ensures a seamless and error-free deployment experience.
-Contrasting with conventional methods dependent on runtime tools like Helm or Kustomize for templating and abstraction, repoform focuses on preparing and finalizing configurations prior to deployment. This pre-deployment strategy presents multiple benefits:
+Contrasting with conventional methods dependent on runtime tools like Helm or Kustomize for templating and abstraction, repoform adopts a pure Python approach for preparing and finalizing configurations prior to deployment. This strategy, grounded in the versatility and simplicity of Python, offers several key advantages:
 
 - **Predictability**: Ensures deployments are transparent and predictable, with configurations resolved before reaching the cluster.
+- **Reduced Runtime Dependencies**: Minimizes the need for runtime templating and abstraction, simplifying cluster operations.
 - **Simplified Workflow**: Reduces complexity by allowing direct manipulation of configurations, streamlining the deployment process.
 - **Version Control and Auditability**: Integrates seamlessly with version control for better tracking, auditability, and easier rollbacks.
-- **Reduced Runtime Dependencies**: Minimizes the need for runtime templating and abstraction, simplifying cluster operations.
 - **Enhanced Security**: Facilitates early compliance checks and security reviews before deployment.
 
 Optimized for GitLab environments, repoform leverages the GitLab API, ensuring a smooth and error-free experience in GitOps practices.
@@ -24,7 +24,9 @@ repository_sources:
     actions: [...]
 ```
 
-Define your high level data under ```data/<file-name>.yaml```
+```export GITLAB_TOKEN=<your-gitlab-token>```
+
+Define your high-level data under ```data/*.yaml```
 
 ```yaml
 nginx_replicas: 3
@@ -37,7 +39,7 @@ from repoform import RepoForm
 
 repoform = RepoForm()
 
-@repoform.reconcile(repo="prod-1", file="apps/nginx/nginx-values.yaml")
+@repoform.reconcile(repo="example-repo", file="apps/nginx/nginx-values.yaml")
 def modify_nginx_values(data, file_content: dict):
     """
     Modifies the configuration of an Nginx deployment in a given YAML file.
@@ -110,10 +112,10 @@ repoform.app - INFO - [SUCCESS] User-defined methods loaded successfully.
 repoform.app - INFO - [SUCCESS] Configuration and data loaded successfully.
 repoform.app - INFO - RepoForm initialized successfully.
 repoform.app - INFO - Planning changes...
-repoform.app - INFO - Processing file 'apps/nginx/nginx_values.yaml' in repository 'prod-1'...
-repoform.app - INFO - Differences found in 'apps/nginx/nginx_values.yaml' of 'prod-1'
-repoform.app - INFO - [SUCCESS] File processed successfully: 'apps/nginx_values.yaml' in repository 'prod-1'
-repoform.app - INFO - Planned changes for 'apps/nginx/nginx_values.yaml' in 'prod-1'
+repoform.app - INFO - Processing file 'apps/nginx/nginx_values.yaml' in repository 'example-repo'...
+repoform.app - INFO - Differences found in 'apps/nginx/nginx_values.yaml' of 'example-repo'
+repoform.app - INFO - [SUCCESS] File processed successfully: 'apps/nginx_values.yaml' in repository 'example-repo'
+repoform.app - INFO - Planned changes for 'apps/nginx/nginx_values.yaml' in 'example-repo'
 repoform.app - INFO - [SUCCESS] Changes planned successfully.
 Planning done!
 ```
@@ -135,4 +137,10 @@ repoform.app - INFO - Changes detected, updating file: apps/nginx/nginx_values.y
 repoform.app - INFO - File 'apps/nginx/nginx_values.yaml' in repository 'pod-1' updated successfully.
 repoform.app - INFO - [SUCCESS] Changes applied successfully to all repositories.
 Changes done!
+```
+
+## Setup Dev
+
+```
+$ poetry install
 ```
