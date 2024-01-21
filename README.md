@@ -76,7 +76,7 @@ Commands:
   plan   Plan changes (dry-run).
 ```
 
-### Running in GitLab CI/CD Pipeline
+Define ```.gitlab-ci.yaml```
 
 ```yaml
 image: ghcr.io/samyn92/repoform:0.1.0-beta
