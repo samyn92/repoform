@@ -1,0 +1,8 @@
+version: "1.0"
+
+gitlab_url: "https://gitlab.example.com"
+repository_sources:
+  - name: "example-repo"
+    project_id: "12345"
+    branch: "main"
+    actions: [...]
