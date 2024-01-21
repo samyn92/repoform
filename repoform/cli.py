@@ -21,7 +21,7 @@ help_text = dict(
     debug = "Enable debug logging."
 )
 
-app = typer.Typer()
+app = typer.Typer(add_completion=False)
 repoform = RepoForm()
 
 
