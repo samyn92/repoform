@@ -70,7 +70,7 @@ def modify_nginx_values(data, file_content: dict):
 ### Running in GitLab CI/CD Pipeline
 
 ```yaml
-image: ghcr.io/samyn92/repoform:latest
+image: ghcr.io/samyn92/repoform:0.1.0-beta
 
 stages:
   - plan
