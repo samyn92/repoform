@@ -2,27 +2,16 @@ from typing import Optional, List
 from pydantic import BaseModel, ValidationError
 import yaml
 
-
-
-class ActionConfig(BaseModel):
-    type: str
-    title: Optional[str] = None
-    description: Optional[str] = None
-    assignee_id: Optional[int] = None
-    channel: Optional[str] = None
-    message: Optional[str] = None
-
 class RepositorySource(BaseModel):
     name: str
     project_id: int
     branch: str
-    actions: List[ActionConfig] = []
+    actions: list
 
 class TmplformConfig(BaseModel):
     version: str
     gitlab_url: str
     repository_sources: List[RepositorySource]
-
 
 
 def load_config(config_path: str) -> TmplformConfig:
