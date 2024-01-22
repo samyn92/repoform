@@ -210,7 +210,7 @@ class RepoForm:
                     merge_request.create_or_update()
                     self.logger.info("File '%s' in repository '%s' updated successfully.", file_name, repo_name)
                 else:
-                    self.logger.fino("No changes detected for file: %s in repo: %s", file_name, repo_name)
+                    self.logger.info("No changes detected for file: %s in repo: %s", file_name, repo_name)
         except Exception as e:
             self.logger.error("Error applying changes: %s", str(e))
             raise
