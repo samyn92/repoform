@@ -58,68 +58,46 @@ class RepositoryManager:
             }
         )
 
+    def create_branch(self, branch_name: str, ref: str = "main"):
+        if not self.branch_exists:
+            self.project.branches.create({"branch": branch_name, "ref": ref})
+        
 
-class Branch:
-    def __init__(self, repo_manager, branch_name):
-        self.repo_manager = repo_manager
-        self.branch_name = branch_name
-        self.branch = None
+    def delete_branch(self, branch_name: str):
+        branch = self.project.branches.get(branch_name)
+        branch.delete()
 
-    def create(self, ref='main'):
-        """ Create a new branch from a reference (default is 'main'). """
-        self.branch = self.repo_manager.project.branches.create({
-            'branch': self.branch_name,
-            'ref': ref
-        })
-
-    def exists(self):
-        """ Check if the branch already exists in the repository. """
+    @property
+    def branch_exists(self):
         try:
-            self.branch = self.repo_manager.project.branches.get(self.branch_name)
+            self.project.branches.get(self.branch)
             return True
         except Exception:
             return False
 
-    def delete(self):
-        """ Delete the branch from the repository. """
-        if self.exists():
-            self.branch.delete()
-
-
-
-class MergeRequest:
-    
-    def __init__(self, repo_manager, title, source_branch, target_branch, description=None):
-        self.repo_manager = repo_manager
-        self.title = title
-        self.source_branch = source_branch
-        self.target_branch = target_branch
-        self.description = description or ""
-        self.mr = None
-
-    def create_or_update(self):
-
-        existing_mrs = self.repo_manager.project.mergerequests.list(
-            source_branch=self.source_branch,
-            target_branch=self.target_branch,
+    def create_or_update_merge_request(self, source_branch: str, target_branch: str, title: str, description: str = None):
+        existing_mrs = self.project.mergerequests.list(
+            source_branch=source_branch,
+            target_branch=target_branch,
             state="opened"
         )
 
         if existing_mrs:
-
-            self.mr = existing_mrs[0]
-            self.mr.description = self.description
-            self.mr.title = self.title
-            self.mr.save()
+            mr = existing_mrs[0]
+            mr.description = description
+            mr.title = title
+            mr.save()
         else:
-
-            self.mr = self.repo_manager.project.mergerequests.create({
-                'source_branch': self.source_branch,
-                'target_branch': self.target_branch,
-                'title': self.title,
-                'description': self.description
+            mr = self.project.mergerequests.create({
+                'source_branch': source_branch,
+                'target_branch': target_branch,
+                'title': title,
+                'description': description
             })
 
-    def merge(self):
-        if self.mr and self.mr.can_merge():
-            self.mr.merge()
+        return mr
+    
+    def merge_merge_request(self, mr_id: int):
+        mr = self.project.mergerequests.get(mr_id)
+        if mr and mr.can_merge():
+            mr.merge()
