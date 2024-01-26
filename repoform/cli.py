@@ -52,7 +52,6 @@ def init(
 @app.command()
 def plan(
     modules_path: str = typer.Argument(..., help=help_text["modules_path"]),
-    data_path: str = typer.Argument(..., help=help_text["data_path"]),
     debug: bool = typer.Option(False, help=help_text["debug"])
 ):
     """
@@ -60,7 +59,7 @@ def plan(
     """
     setup(modules_path, debug)
 
-    repoform.load(modules_path, data_path, DataLoaderType.YAMLFilesToDictLoader)
+    repoform.load(modules_path)
     repoform.plan_changes()
     typer.echo(f"Planning done!")
 
@@ -68,7 +67,6 @@ def plan(
 @app.command()
 def apply(
     modules_path: str = typer.Argument(..., help=help_text["modules_path"]),
-    data_path: str = typer.Argument(..., help=help_text["data_path"]),
     debug: bool = typer.Option(False, help=help_text["debug"])
 ):
     """
@@ -76,7 +74,7 @@ def apply(
     """
     setup(modules_path, debug)
 
-    repoform.load(modules_path, data_path, DataLoaderType.YAMLFilesToDictLoader)
+    repoform.load(modules_path)
     repoform.apply_changes()
     typer.echo(f"Changes done!")
 

@@ -40,8 +40,7 @@ class RepositoryManager:
         raw_content = file.decode().decode("utf-8")
         return load_content_by_file_type(file_path, raw_content)
 
-    def update_file(self, file_path: str, content: str, commit_message: str, branch: str = None):
-        branch = branch or self.branch
+    def update_file(self, file_path: str, content: str, commit_message: str, branch: str):
         stringified_content = dump_content_by_file_type(file_path, content)
         file = self.project.files.get(file_path=file_path, ref=branch)
         file.content = stringified_content
@@ -59,23 +58,30 @@ class RepositoryManager:
         )
 
     def create_branch(self, branch_name: str, ref: str = "main"):
-        if not self.branch_exists:
+
+        if not self.branch_exists(branch_name):
+            print(f"Creating branch {branch_name} from {ref}")
             self.project.branches.create({"branch": branch_name, "ref": ref})
+        else:
+            print(f"Branch {branch_name} already exists")
         
 
     def delete_branch(self, branch_name: str):
         branch = self.project.branches.get(branch_name)
         branch.delete()
 
-    @property
-    def branch_exists(self):
+
+    def branch_exists(self, branch_name: str):
         try:
-            self.project.branches.get(self.branch)
+            self.branch = self.project.branches.get(branch_name)
             return True
         except Exception:
             return False
 
+
+
     def create_or_update_merge_request(self, source_branch: str, target_branch: str, title: str, description: str = None):
+        print(f"Creating merge request from {source_branch} to {target_branch}...")
         existing_mrs = self.project.mergerequests.list(
             source_branch=source_branch,
             target_branch=target_branch,

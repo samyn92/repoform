@@ -9,11 +9,8 @@ from copy import deepcopy
 from deepdiff import DeepDiff
 
 from repoform.config import load_config
-from repoform.loaders import DataLoaderType, YAMLFilesToListLoader, YAMLFilesToDictLoader
+from repoform.loaders import YAMLFilesToDictLoader
 from repoform.repository import RepositoryManager
-from repoform.repository import Branch
-from repoform.repository import MergeRequest
-
 
 def singleton(cls):
     instances = {}
