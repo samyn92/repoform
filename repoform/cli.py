@@ -5,7 +5,6 @@ import logging
 import typer
 
 from repoform.app import RepoForm
-from repoform.loaders import DataLoaderType
 
 
 logging.basicConfig(
@@ -33,35 +32,6 @@ def setup(modules_path: str, debug: bool):
 
     sys.path.append(full_path)
 
-
-@app.command()
-def init(
-    modules_path: str = typer.Argument(..., help=help_text["modules_path"]),
-    data_path: str = typer.Argument(..., help=help_text["data_path"]),
-    debug: bool = typer.Option(False, help=help_text["debug"])
-):
-    """
-    Show registered methods and registered data.
-    """
-    setup(modules_path, debug)
-
-    repoform.load(modules_path, data_path, DataLoaderType.YAMLFilesToDictLoader)
-    repoform.log_registered_items()
-
-
-@app.command()
-def plan(
-    modules_path: str = typer.Argument(..., help=help_text["modules_path"]),
-    debug: bool = typer.Option(False, help=help_text["debug"])
-):
-    """
-    Plan changes (dry-run).
-    """
-    setup(modules_path, debug)
-
-    repoform.load(modules_path)
-    repoform.plan_changes()
-    typer.echo(f"Planning done!")
 
 
 @app.command()

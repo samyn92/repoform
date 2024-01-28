@@ -1,8 +1,0 @@
-version: "1.0"
-
-gitlab_url: "https://gitlab.devops.telekom.de"
-repository_sources:
-  - name: "t5g-campus-1.refaz.bn"
-    project_id: "243520"
-    branch: "main"
-    actions: [...]

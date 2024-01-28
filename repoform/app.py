@@ -2,15 +2,9 @@ import os
 import functools
 import logging
 import importlib
-import difflib
-from copy import deepcopy
 
-
-from deepdiff import DeepDiff
-
-from repoform.config import load_config
-from repoform.loaders import YAMLFilesToDictLoader
 from repoform.repository import RepositoryManager
+from repoform.utils import load_data
 
 def singleton(cls):
     instances = {}
@@ -33,22 +27,8 @@ class RepoForm:
 
     def load(self, modules_path: str):
         try:
-            config_path = os.getenv('REPOFORM_CONFIG', 'repoform_config.yaml')
-            self.logger.debug("Loading configuration from '%s'...", config_path)
-            self.config = load_config(config_path)
             self.logger.debug("Loading modules from '%s'...", modules_path)
             self.load_user_methods(modules_path)
-
-            for repo_source in self.config.repository_sources:
-                self.logger.debug("Initializing repository manager for %s", repo_source.name)
-                RepositoryManager(
-                    name=repo_source.name,
-                    project_id=repo_source.project_id,
-                    actions=repo_source.actions,
-                    branch=repo_source.branch,
-                    gitlab_url=self.config.gitlab_url
-                )
-            
         except Exception as e:
             self.logger.error("[FAIL] Repoform initialization failed: %s", str(e))
             raise
@@ -66,6 +46,7 @@ class RepoForm:
                 self.logger.debug("Loaded module '%s'", module_name)
         self.logger.debug("[SUCCESS] User-defined methods loaded successfully.")
 
+
     def validate(self, data_path: str):
         def decorator_validate(func):
             @functools.wraps(func)
@@ -80,12 +61,22 @@ class RepoForm:
         def decorator(func):
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
-                data = YAMLFilesToDictLoader.load_data(data_path)
+                data = load_data(data_path)
                 return func(data, *args, **kwargs)
             self.apply_methods.append(wrapper)
             return wrapper
         return decorator
     
+
+    def load_repositories(self, repo_ids: list[str]):
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                repositories = [RepositoryManager(repo_id) for repo_id in repo_ids]
+                return func(*args, repositories=repositories, **kwargs)
+            return wrapper
+        return decorator
+
 
     def apply_changes(self):
         self.logger.info("Applying changes...")

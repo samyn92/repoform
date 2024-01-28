@@ -1,8 +1,22 @@
+import os
 import json
 import yaml
 import xml.etree.ElementTree as ET
 from lxml import etree
 from xml.dom import minidom
+
+@staticmethod
+def load_data(directory_path: str) -> dict:
+    data = {}
+    for filename in os.listdir(directory_path):
+        if filename.endswith('.yaml') or filename.endswith('.yml'):
+            file_path = os.path.join(directory_path, filename)
+            with open(file_path, 'r') as file:
+                file_data = yaml.safe_load(file)
+                if isinstance(file_data, dict):
+                    key = os.path.splitext(filename)[0]  # Using filename (without extension) as key
+                    data[key] = file_data
+    return data
 
 def load_content_by_file_type(file_name: str, content: str):
     if file_name.endswith('.json'):

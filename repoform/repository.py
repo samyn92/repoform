@@ -1,39 +1,43 @@
 import os
+import logging
+
 import gitlab
 
 from repoform.utils import load_content_by_file_type, dump_content_by_file_type
+
 
 class RepositoryManager:
     instances = {}
 
     def __init__(
         self,
-        name: str,
-        project_id: str,
-        actions: list,
-        branch: str = "main",
-        gitlab_url: str = None
+        project_id: str
     ):
-        gitlab_url = os.environ.get("GITLAB_URL", gitlab_url)
+        self.logger = logging.getLogger(__name__)
+
+        gitlab_url = os.environ.get("GITLAB_URL")
+        if gitlab_url is None:
+            raise ValueError("Environment variable GITLAB_URL is not set")
         private_token = os.environ.get("GITLAB_PRIVATE_TOKEN")
         if private_token is None:
-            raise ValueError("Environment variable GITLAB_PRIVATE_TOKEN is not set")        
+            raise ValueError("Environment variable GITLAB_PRIVATE_TOKEN is not set")      
         self.gl = gitlab.Gitlab(gitlab_url, private_token=private_token)
 
-        self.name = name
         self.project_id = project_id
-        self.branch = branch
-        self.actions = actions
         self.project = self.gl.projects.get(project_id)
+        self.name = self.project.name
 
-        self.__class__.instances[name] = self
+        self.__class__.instances[project_id] = self
 
     def __repr__(self):
-        return f"RepositoryManager({self.name})"
+        return f"Repository({self.project_id},{self.name})"
 
     @classmethod
-    def get(cls, name: str):
-        return cls.instances.get(name)
+    def get(cls, project_id: str):
+        if project_id not in cls.instances:
+            return cls(project_id)
+        else:
+            return cls.instances.get(project_id)
 
     def get_file_content(self, file_path: str, ref: str) -> str:
         file = self.project.files.get(file_path=file_path, ref=ref)
@@ -41,6 +45,7 @@ class RepositoryManager:
         return load_content_by_file_type(file_path, raw_content)
 
     def update_file(self, file_path: str, content: str, commit_message: str, branch: str):
+        self.logger.info(f"Updating file {file_path} in {self.name}...")
         stringified_content = dump_content_by_file_type(file_path, content)
         file = self.project.files.get(file_path=file_path, ref=branch)
         file.content = stringified_content
@@ -60,10 +65,10 @@ class RepositoryManager:
     def create_branch(self, branch_name: str, ref: str = "main"):
 
         if not self.branch_exists(branch_name):
-            print(f"Creating branch {branch_name} from {ref}")
+            self.logger.info(f"Creating branch {branch_name} from {ref}...")
             self.project.branches.create({"branch": branch_name, "ref": ref})
         else:
-            print(f"Branch {branch_name} already exists")
+            self.logger.info(f"Branch {branch_name} already exists")
         
 
     def delete_branch(self, branch_name: str):
@@ -81,7 +86,7 @@ class RepositoryManager:
 
 
     def create_or_update_merge_request(self, source_branch: str, target_branch: str, title: str, description: str = None):
-        print(f"Creating merge request from {source_branch} to {target_branch}...")
+        self.logger.info(f"Creating merge request from {source_branch} to {target_branch}...")
         existing_mrs = self.project.mergerequests.list(
             source_branch=source_branch,
             target_branch=target_branch,
@@ -100,7 +105,8 @@ class RepositoryManager:
                 'title': title,
                 'description': description
             })
-
+        
+        self.logger.info(f"Merge request created: {mr.web_url}")
         return mr
     
     def merge_merge_request(self, mr_id: int):
